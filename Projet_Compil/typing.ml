@@ -41,7 +41,7 @@ let env = { localvar = [("k", IntT ); ("n", IntT )];
 
 
 (* ************************************************************ *)
-(* ****         Exercice 1 : Fonction tp_of_expr           **** *)
+(* ****        Exercices 1 et 2 : Fonction tp_of_expr      **** *)
 (* ************************************************************ *)
 
 exception VarNonDefinie;;
@@ -50,21 +50,25 @@ exception FonctionNonDefinie;;
 
 
 let rec tp_exp env = function
-	Const(0, b) -> let typeConst = function
+
+(* Exercice 1 *)
+	(Const(_, b):(int expr)) -> let typeConst = function
                     (BoolV _) -> BoolT
                     |(IntV  _) -> IntT
-                    | (VoidV) -> VoidT
-                  in 
+                    |(VoidV) -> VoidT
+                  in
             Const(typeConst b, b)
 
-  |VarE(0, Var(b, nom)) -> let rec recherche = function
+
+  |VarE(_, Var(b, nom)) -> let rec recherche = function
                               ((n, t)::liste, nom) -> if n=nom then t
                                                       else recherche(liste, nom)
                               |([], _) -> raise VarNonDefinie
                             in
             VarE(recherche(env.localvar, nom), Var(b, nom))
 
-  |BinOp(0, operateur, exp1, exp2) -> let tpExp1 = tp_exp env exp1 in
+
+  |BinOp(_, operateur, exp1, exp2) -> let tpExp1 = tp_exp env exp1 in
                                       let tpExp2 = tp_exp env exp2 in
       if tp_of_expr(tpExp1) = tp_of_expr(tpExp2) then
                 let tpOp = function
@@ -77,15 +81,17 @@ let rec tp_exp env = function
             BinOp(tpOp(operateur, tp_of_expr(tpExp1)), operateur, tpExp1, tpExp2)
       else raise MalType
 
-  |IfThenElse(0, exp1, exp2, exp3) -> let tpExp1 = tp_exp env exp1 in
+
+  |IfThenElse(_, exp1, exp2, exp3) -> let tpExp1 = tp_exp env exp1 in
                                       let tpExp2 = tp_exp env exp2 in
                                       let tpExp3 = tp_exp env exp3 in
       if tp_of_expr(tpExp1) = BoolT && tp_of_expr(tpExp2)=tp_of_expr(tpExp3)
           then IfThenElse(tp_of_expr(tpExp2), tpExp1, tpExp2, tpExp3)
       else raise MalType
 
+
 (* Exercice 2 : rajout du cas de CallE*)
-  |CallE(0, fname, liste_expr) -> let rec rechercheFun = function
+  |CallE(_, fname, liste_expr) -> let rec rechercheFun = function
                                     ((Fundecl (t, fn, pds))::liste, nom) -> if fn=nom then (t, pds)
                                                             else rechercheFun(liste, nom)
                                     |([], _) -> raise FonctionNonDefinie
@@ -118,11 +124,11 @@ tp_exp env (IfThenElse(0, BinOp(0,
                       Const(0, IntV 1)),
                   (VarE(0, Var (Local , "k"))),
                   (Const (0, IntV 1))));;
-*)
+
 tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, BoolV true )]));;
 tp_exp env (CallE (0, "f", [ Const (0, IntV 3)]));;
 tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, IntV 4 )]));;
-
+*)
 
 
 
