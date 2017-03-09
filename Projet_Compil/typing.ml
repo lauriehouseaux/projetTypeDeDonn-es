@@ -1,4 +1,4 @@
-(* 
+(*
 #use "use.ml";;
 open Typing;;
 open Lang;;
@@ -19,11 +19,11 @@ type environment =
      funbind: fundecl list};;
 
 
-let express1 = BinOp (0, 
-          BCompar BCeq , 
+let express1 = BinOp (0,
+          BCompar BCeq ,
               VarE (0, Var (Local , "n")),
-              BinOp (0, 
-                BArith BAadd , 
+              BinOp (0,
+                BArith BAadd ,
                     VarE (0, Var (Local , "k")),
                     Const (0, IntV 1))) ;;
 
@@ -32,10 +32,10 @@ let express2 = BinOp (0,
                   VarE (0, Var (Local , "n")),
                   Const (0, IntV 2)) ;;
 
-let env = { localvar = [("k", IntT ); ("n", IntT )]; 
+let env = { localvar = [("k", IntT ); ("n", IntT )];
             globalvar = [];
-            returntp = VoidT ; 
-            funbind = []} ;;
+            returntp = VoidT ;
+            funbind = [Fundecl (IntT , "f", [ Vardecl (IntT , "n"); Vardecl (BoolT , "b")])]} ;;
 
 
 
@@ -46,6 +46,7 @@ let env = { localvar = [("k", IntT ); ("n", IntT )];
 
 exception VarNonDefinie;;
 exception MalType;;
+exception FonctionNonDefinie;;
 
 
 let rec tp_exp env = function
@@ -82,7 +83,28 @@ let rec tp_exp env = function
       if tp_of_expr(tpExp1) = BoolT && tp_of_expr(tpExp2)=tp_of_expr(tpExp3)
           then IfThenElse(tp_of_expr(tpExp2), tpExp1, tpExp2, tpExp3)
       else raise MalType
-  ;;
+
+(* Exercice 2 : rajout du cas de CallE*)
+  |CallE(0, fname, liste_expr) -> let rec rechercheFun = function
+                                    ((Fundecl (t, fn, pds))::liste, nom) -> if fn=nom then (t, pds)
+                                                            else rechercheFun(liste, nom)
+                                    |([], _) -> raise FonctionNonDefinie
+                                  in
+
+              let (tpF, liste_varDecl) = rechercheFun (env.funbind, fname) in
+
+                                  let rec compare = function
+                                    (tp1::liste_varDecl, tp2::liste_expr) ->
+                                      let expr_type = (tp_exp env tp2) in
+                                        if tp_of_vardecl(tp1) = tp_of_expr(expr_type)
+                                          then expr_type::(compare(liste_varDecl, liste_expr))
+                                        else raise MalType
+                                    |([],[]) -> []
+                                    |(_, _) -> raise MalType
+                                  in
+
+              let liste_type = compare(liste_varDecl, liste_expr) in
+              CallE(tpF, fname, liste_type) ;;
 
 
 (* tp_exp env (VarE(0, Var (Local , "k")));;
@@ -97,6 +119,11 @@ tp_exp env (IfThenElse(0, BinOp(0,
                   (VarE(0, Var (Local , "k"))),
                   (Const (0, IntV 1))));;
 *)
+tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, BoolV true )]));;
+tp_exp env (CallE (0, "f", [ Const (0, IntV 3)]));;
+tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, IntV 4 )]));;
+
+
 
 
 (* TODO: put your definitions here *)
