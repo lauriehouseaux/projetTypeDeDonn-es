@@ -38,4 +38,4 @@ ne sont pas encore traités.
 **************************************************************
 
 voir le fichier mesTests.ml qui est dans le dossier Tests. 
-Les tests en jasmin échouent car on ne spécifie pas les valeurs contenues dans les registres. 
+Pour tester avec jasmin il faut utiliser MyWrapper 
