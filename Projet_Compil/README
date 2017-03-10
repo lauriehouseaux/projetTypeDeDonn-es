@@ -2,7 +2,7 @@ Doit contenir une description succincte de votre travail.
 J'ai travaillé sur ce projet avec Adrien JARRETIER.
 
 **************************************************************
-		Pour le fichier typing.ml
+				Pour le fichier typing.ml
 **************************************************************
 
 La fonction tp_exp ne m'a pas posé de problèmes particuliers.
@@ -11,7 +11,7 @@ La fonction tp_exp ne m'a pas posé de problèmes particuliers.
 
 
 **************************************************************
-		Pour le fichier gen.ml
+				Pour le fichier gen.ml
 **************************************************************
 
 La fonction gen_expr renvoie actuellement une liste d'instruction.
@@ -27,3 +27,14 @@ let gen_expr liste_var = function expr ->
 	in pr_instrs 0 liste_instr;;
 
 Mais lors de la compilation il y a une erreur me disant qu'il ne trouve pas la fonction pr_instrs et lorsqu'on rajoute le open Print_instr au debut du fichier gen.ml il y a une erreur comme quoi le fichier n'est pas trouvé.
+
+Un warning se met lors de la compilation car les cas des appels
+	- CallE
+	- IfThenElse
+ne sont pas encore traités.
+
+**************************************************************
+						Pour les test
+**************************************************************
+
+voir le fichier mesTests.ml qui est dans le dossier Tests
