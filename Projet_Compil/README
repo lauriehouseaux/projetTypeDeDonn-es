@@ -1,11 +1,11 @@
 Doit contenir une description succincte de votre travail.
-J'ai travaillé sur ce projet avec Adrien JARRETIER. 
+J'ai travaillé sur ce projet avec Adrien JARRETIER.
 
 **************************************************************
-		Pour le fichier typing.ml 
+		Pour le fichier typing.ml
 **************************************************************
 
-La fonction tp_exp ne m'a pas posé de problèmes particuliers. 
+La fonction tp_exp ne m'a pas posé de problèmes particuliers.
 
 
 
@@ -13,3 +13,17 @@ La fonction tp_exp ne m'a pas posé de problèmes particuliers.
 **************************************************************
 		Pour le fichier gen.ml
 **************************************************************
+
+La fonction gen_expr renvoie actuellement une liste d'instruction.
+
+Je voulais qu'elle renvoie du texte en utilisant la fonction pr_instr du fichier print_instr.ml comme ceci :
+
+let gen_expr liste_var = function expr ->
+	let rec aux = function
+		Const (tp, c) -> [Loadc(tp, c)]
+		|VarE(tp, Var(_, name)) -> [Loadv(tp, (position (name, tp) liste_var))]
+		|BinOp(tp, op, exp1, exp2) -> (aux exp1)@(aux exp2)@[Bininst(tp, op)]
+	in let liste_instr = (aux expr)
+	in pr_instrs 0 liste_instr;;
+
+Mais lors de la compilation il y a une erreur me disant qu'il ne trouve pas la fonction pr_instrs et lorsqu'on rajoute le open Print_instr au debut du fichier gen.ml il y a une erreur comme quoi le fichier n'est pas trouvé.
