@@ -28,18 +28,33 @@ let gen_prog (Prog (gvds, fdfs)) =
                       [Loadc (IntT, IntV 0); ReturnI IntT])])
 
 
-let position element = function liste ->
-	let rec aux = function
-		(el, (e::li), cpt) -> if e==el then cpt
-							  else aux(el, li, cpt+1)
-		|(_, [], _) -> failwith "erreur element non dans liste"
-	in
-	aux (element, liste, 0) ;;
+let rec position element = function
+		(e::li) -> if e=element then 0
+							  else 1+(position element li)
+		|_ -> failwith "erreur element non dans liste";;
 
 
 let rec gen_expr liste_var = function
 	Const (tp, c) -> [Loadc(tp, c)]
-	|VarE(tp, v) -> [Loadv(tp, (position v liste_var))]
+	|VarE(tp, Var(_, name)) -> [Loadv(tp, (position (name, tp) liste_var))]
 	|BinOp(tp, op, exp1, exp2) -> (gen_expr liste_var exp1)@(gen_expr liste_var exp2)@[Bininst(tp, op)];;
 
 
+(* let exp = BinOp (IntT, BArith BAmul,
+	(*exp1 -> *) BinOp (IntT, BArith BAadd, VarE (IntT, Var (Local , "x")), VarE (IntT, Var (Local , "y"))),
+	(*exp2 -> *) BinOp (IntT, BArith BAsub, Const(IntT, IntV 1), VarE (IntT, Var (Local , "z")))
+				);;
+
+let expEx = BinOp (IntT, BArith BAsub,
+	(* x *)			VarE (IntT, Var (Local , "x")),
+	(*y+2*)			BinOp(IntT, BArith BAadd,
+						VarE (IntT, Var (Local , "y")),
+						Const(IntT, IntV 2))
+				   );;
+
+let liste_var = [("x", IntT ); ("y", IntT ); ("z", IntT)];;
+
+
+gen_expr liste_var exp;;
+gen_expr liste_var expEx;;
+ *)
