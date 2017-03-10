@@ -39,7 +39,7 @@ let rec gen_expr liste_var = function
 	Const (tp, c) -> [Loadc(tp, c)]
 	|VarE(tp, Var(_, name)) -> [Loadv(tp, (position (name, tp) liste_var))]
 	|BinOp(tp, op, exp1, exp2) -> (gen_expr liste_var exp1)@(gen_expr liste_var exp2)@[Bininst(tp, op)]
-	;;
+	| _ -> failwith "Cas non encore traites";;
 
 
 (* let exp = BinOp (IntT, BArith BAmul,
