@@ -9,6 +9,7 @@ open Lang;;
 open Lang
 open Analyses
 open Instrs
+open Print_instr
 
 (* ************************************************************ *)
 (* **** Compilation of expressions / statements            **** *)
@@ -34,10 +35,13 @@ let rec position element = function
 		|_ -> failwith "erreur element non dans liste";;
 
 
-let rec gen_expr liste_var = function
-	Const (tp, c) -> [Loadc(tp, c)]
-	|VarE(tp, Var(_, name)) -> [Loadv(tp, (position (name, tp) liste_var))]
-	|BinOp(tp, op, exp1, exp2) -> (gen_expr liste_var exp1)@(gen_expr liste_var exp2)@[Bininst(tp, op)];;
+let gen_expr liste_var = function expr ->
+	let rec aux = function
+		Const (tp, c) -> [Loadc(tp, c)]
+		|VarE(tp, Var(_, name)) -> [Loadv(tp, (position (name, tp) liste_var))]
+		|BinOp(tp, op, exp1, exp2) -> (aux exp1)@(aux exp2)@[Bininst(tp, op)]
+	in let liste_instr = (aux expr)
+	in pr_instrs 0 liste_instr;;
 
 
 (* let exp = BinOp (IntT, BArith BAmul,
