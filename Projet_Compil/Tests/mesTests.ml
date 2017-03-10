@@ -11,6 +11,37 @@ open Gen;;
 open Print_instr;;
 
 
+(****************************************************************)
+					(* POUR JASMIN *)
+(****************************************************************)
+
+let texte1 =  ".class testsJasmin"^"\n"
+			^".super java/lang/Object"^"\n"
+			^".method static even(I)I"^"\n"
+			^pr_instrs 0 (gen_expr env.localvar (tp_exp env express2))
+			^".end method";;
+
+let texte2 =  ".class testsJasmin"^"\n"
+			^".super java/lang/Object"^"\n"
+			^".method static even(I)I"^"\n"
+			^pr_instrs 0 (gen_expr env.localvar (tp_exp env express2))
+			^".end method";;
+
+
+let texte3 =  ".class testsJasmin"^"\n"
+			^".super java/lang/Object"^"\n"
+			^".method static even(I)I"^"\n"
+			^pr_instrs 0 (gen_expr env.localvar (tp_exp env express2))
+			^".end method";;
+
+
+let ecrire fichier = function texte ->
+		let fic = open_out(fichier) in (output_string fic texte); flush fic;;
+
+ecrire "Tests/testsJasmin1.j" texte1;;
+ecrire "Tests/testsJasmin2.j" texte2;;
+ecrire "Tests/testsJasmin3.j" texte3;;
+
 (* ************************************************************ *)
 (* ****        Expressions servant pour les tests          **** *)
 (* ************************************************************ *)
@@ -214,14 +245,5 @@ print_string(pr_instrs 0 (gen_expr env.localvar (tp_exp env express2)));;
 print_string(pr_instrs 0 (gen_expr env.localvar (tp_exp env express3)));;
 print_string(pr_instrs 0 (gen_expr env.localvar (tp_exp env express4)));;
 
-let texte =  pr_instrs 0 (gen_expr env.localvar (tp_exp env express2))
-			^pr_instrs 0 (gen_expr env.localvar (tp_exp env express3))
-			^pr_instrs 0 (gen_expr env.localvar (tp_exp env express4));;
-
-print_string(texte);;
-
-let ecrire fichier = function texte ->
-		let fic = open_out(fichier) in (output_string fic texte); flush fic;;
 
 
-ecrire "Tests/testsJasmin.j" texte;;
