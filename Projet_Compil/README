@@ -37,4 +37,5 @@ ne sont pas encore traités.
 						Pour les test
 **************************************************************
 
-voir le fichier mesTests.ml qui est dans le dossier Tests
+voir le fichier mesTests.ml qui est dans le dossier Tests. 
+Les tests en jasmin échouent car on ne spécifie pas les valeurs contenues dans les registres. 
