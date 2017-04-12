@@ -132,6 +132,13 @@ tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, IntV 4 )]));;
 
 
 
+(* Exercice 6 *)
+
+let rec tp_stmt = function
+	Skip -> Skip
+	
+
+
 (* TODO: put your definitions here *)
 let tp_prog (Prog (gvds, fdfs)) =
   Prog([],
