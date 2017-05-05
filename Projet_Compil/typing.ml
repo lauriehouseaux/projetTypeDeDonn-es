@@ -47,6 +47,7 @@ let env = { localvar = [("k", IntT ); ("n", IntT )];
 exception VarNonDefinie;;
 exception MalType;;
 exception FonctionNonDefinie;;
+exception ProblemeParametres;;
 
 
 let rec tp_exp env = function
@@ -134,9 +135,55 @@ tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, IntV 4 )]));;
 
 (* Exercice 6 *)
 
-let rec tp_stmt = function
+let rec tp_stmt env = function
 	Skip -> Skip
-	
+	| Assign (_, Var(b, nom), exp) -> let tpExp = tp_exp env exp in
+                                    let rec recherche = function
+                                      ((n, t)::liste, nom) -> if n=nom then t
+                                                              else recherche(liste, nom)
+                                      |([], _) -> raise VarNonDefinie
+                                    in
+                                    let tpVar = recherche(env.localvar, nom) in
+                                      if tp_of_expr(tpExp) = tpVar then Assign(VoidT, Var(b, nom), tpExp)
+                                      else raise MalType
+
+  | Seq (stmt1 , stmt2) -> Seq((tp_stmt env stmt1), (tp_stmt env stmt2))
+
+  | Cond (exp, stmt1, stmt2) -> let tpExp = (tp_exp env exp) in if tp_of_expr(tpExp)=BoolT then Cond(tpExp, (tp_stmt env stmt1), (tp_stmt env stmt2))
+                                                                else raise MalType
+
+  | While (exp, stmt) -> let tpExp = (tp_exp env exp) in if tp_of_expr(tpExp) = BoolT then While(tpExp, (tp_stmt env stmt))
+                                                        else raise MalType
+
+  | CallC (nom, expListe) -> let rec rechercheFunDecl = function
+                                (Fundecl (t, fn, pds))::funDecls ->
+                                  if fn = nom
+                                  then
+                                    let rec tpListe = function
+                                      (exp::liste, param::paramList) ->
+                                          let tpExp = tp_exp env exp in
+                                            if tp_of_expr(tpExp) = tp_of_vardecl(param)
+                                            then
+                                            (tpExp)::(tpListe(liste,paramList))
+                                            else
+                                              raise MalType
+                                    | ([], []) -> []
+                                    | (_, _) -> raise ProblemeParametres
+                                  in
+                                tpListe(expListe,pds)
+                              else
+                                rechercheFunDecl funDecls
+                      | _ -> raise FonctionNonDefinie
+                      in
+                  CallC(nom, rechercheFunDecl env.funbind)
+
+  | Return (exp) -> let tpExp = tp_exp env exp in
+                if tp_of_expr(tpExp) = env.returntp
+                then
+                  Return (tpExp)
+                else
+                  raise MalType
+;;
 
 
 (* TODO: put your definitions here *)
