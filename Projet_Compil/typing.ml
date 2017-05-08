@@ -133,6 +133,8 @@ tp_exp env (CallE (0, "f", [ Const (0, IntV 3); Const (0, IntV 4 )]));;
 
 
 
+
+
 (* Exercice 6 *)
 
 let rec tp_stmt env = function
@@ -186,10 +188,69 @@ let rec tp_stmt env = function
 ;;
 
 
+(* Exercice 7 *)
+
+(*Fonction permettant de verifier si la variable est deja declaree*)
+let rec varDejaDecl (nomVar) = function
+	((Vardecl(_, nom))::liste) -> nom = nomVar || (varDejaDecl nomVar liste)
+	|([]) -> false;;
+
+
+(*Fonction verifiant que les parametres ne sont pas de type void et appelant varDejaDecl*)
+let rec verifVar = function
+	((Vardecl(tp, nom))::liste) -> tp != VoidT && not(varDejaDecl nom liste) && (verifVar liste)
+	|([]) -> true;;
+
+(* Fonction pour avoir une liste de parametre que l'on peut concatener avec l'environnement *)
+let rec ajoutEnv = function
+	(Vardecl(tp, nom)::liste) -> (nom, tp)::(ajoutEnv(liste))
+	|([]) -> [] ;;
+
+let tp_fdefn env = function
+	(Fundefn ((Fundecl(tp, fname, vardecl)), vardecl2, stmt)) ->
+
+			let listeVars = vardecl@vardecl2 in
+
+				if (verifVar listeVars)
+					then
+						let listeVars2 = ajoutEnv(listeVars) in
+
+						let envT = {localvar = listeVars2@env.localvar;
+     								globalvar = env.globalvar;
+     								returntp = env.returntp;
+     								funbind = env.funbind
+     								}
+     					in
+							let tpStmt = (tp_stmt envT stmt) in
+								Fundefn ((Fundecl(tp, fname, vardecl)), vardecl2, tpStmt)
+
+				else raise ProblemeParametres;;
+
+
+(* Exercice 8 *)
+
 (* TODO: put your definitions here *)
-let tp_prog (Prog (gvds, fdfs)) =
-  Prog([],
-       [Fundefn (Fundecl (BoolT, "even", [Vardecl (IntT, "n")]), [], Skip)])
-;;
+
+let rec ajoutFonctEnv = function
+	(Fundefn(fundecl, vardecl, stmt)::liste) -> fundecl::(ajoutFonctEnv(liste))
+	|([]) -> [] ;;
+
+let tp_prog =
+			function (Prog (gvds, fdfs)) -> if (verifVar gvds) then
+												let gvds2 = ajoutEnv(gvds) in
+												let fdfs2 = ajoutFonctEnv(fdfs) in
+
+												let envI = {localvar = [];
+     														globalvar = gvds2;
+     														returntp = VoidT;
+     														funbind = fdfs2
+     														}
+     											in
+													let rec defType = function
+													(f::liste) -> (tp_fdefn envI f)::defType(liste)
+													|[] -> []
+													in
+												Prog(gvds, defType(fdfs))
+											else raise ProblemeParametres;;
 
 
